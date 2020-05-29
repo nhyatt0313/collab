@@ -1,4 +1,7 @@
 import os
+import pathlib
+
+filePath = pathlib.Path(__file__).parent.absolute()
 
 logEnabled = True
 logLevel = 0
@@ -76,13 +79,13 @@ def createLineToWrite(i):
     return (format(lambdas[i], ".2f") + delim + format(aveMR[i], ".2f") + delim + format(aveMT[i], ".2f") + "\n")
 
 
-def printDataToFile():
+def printDataToFile(fullPath):
     global aveMR, aveMT, lambdas
-    filename = 'output.txt'
-    file = open(filename, 'w')
+    file = open(fullPath, 'w')
     if len(lambdas) == len(aveMR) == len(aveMT):
         for iter in range(len(lambdas)):
             file.write(createLineToWrite(iter))
+        print("Output File Created: " + fullPath)
     else:
         print("ERROR: not all data lists are the same size: lambdas = " + str(len(lambdas)) + " | aveMR = " + str(len(aveMR)) + " | aveMT = " + str(len(aveMT)))
 
@@ -140,14 +143,15 @@ def averageAllMTCounts():
 
 
 def main():
-    global directory
+    global directory, filePath
     print("\n\n")
     directory = input("Enter Directory: ")
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
     averageAllMRCounts()
     averageAllMTCounts()
-    printDataToFile()
+    inputFolderName = directory.split("\\")[-1]
+    printDataToFile(str(filePath) + r'\Output\output_' + str(inputFolderName) + r".txt")
     print("Process Completed\n")
 
 main()
