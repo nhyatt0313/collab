@@ -5,14 +5,26 @@ filePath = pathlib.Path(__file__).parent.absolute()
 
 logEnabled = True
 logLevel = 0
+
 directory = None
 lambdasParsed = False
-lambdas = []
-aveMT = []
-aveMR = []
-allMR = [] # a list of lists - each list gathered from 1 file
-allMT = [] # a list of lists - each list gathered from 1 file
 roundTo = 2
+
+lambdas = []
+allCountsR = [] # a list of lists - each list gathered from 1 file
+allCountsT = [] # a list of lists - each list gathered from 1 file
+
+allr0 = []
+aver0 = []
+
+allr1 = []
+aver1 = []
+
+allt0 = []
+avet0 = []
+
+allt1 = []
+avet1 = []
 
 def log(message, level):
     global logEnabled, logLevel
@@ -29,54 +41,73 @@ def getCounts(line):
     return float(data[1].replace('\n', ''))
 
 
-def parseMRData(f):
-    log("\tparsing R data file: " + f, 0)
-    file = open(directory+"\\R\\"+f, 'r')
+def parseData(dataFolder, dataFile):
+    print(f"\tparsing {dataFolder} data file: " + dataFile)
+    file = open(directory + "\\" + dataFolder + "\\" + dataFile, 'r')
     line = file.readline()
-    mR = []
+    data = []
     while line:
         if not line.startswith('#'):
             global lambdasParsed
             if not lambdasParsed:
                 lambdas.append(getLambdas(line))
-            mR.append(getCounts(line))
+            data.append(getCounts(line))
         line = file.readline()
     lambdasParsed = True
+    return data
+
+def calcMR(r, r0, r1):
+    rstd = 1
+    mR = []
+    if len(r) == len(r0) == len(r1):
+        for i in range(len(r)):
+            mR.append(rstd * (r[i] - r0[i])/(r1[i] - r0[i]))
+    else:
+        print("ERROR: not all lists are the same size")
     return mR
 
 
-def parseMTData(f):
-    log("\tparsing T data file: " + f, 0)
-    file = open(directory+"\\T\\"+f, 'r')
-    line = file.readline()
+def calcMT(t, t0, t1):
     mT = []
-    while line:
-        if not line.startswith('#'):
-            mT.append(getCounts(line))
-        line = file.readline()
+    if len(t) == len(t0) == len(t1):
+        for i in range(len(t)):
+            mT.append((t[i] - t0[i])/(t1[i] - t0[i]))
+    else:
+        print("ERROR: not all lists are the same size")
     return mT
 
 
 def directoryScanner(path):
     cd = path.split("\\")[-1]
-    log("\n\n\tList of Paths: " + str(os.listdir(path)), 2)
     for file in os.listdir(path):
         if not os.path.isdir(os.path.join(path, file)):
             if cd == "R":
-                if file.endswith(".egg"):
-                    allMR.append(parseMRData(file))
-                    log("\t\tallMR = " + str(allMR), 1)
+                if file.startswith("cal-r0"):
+                    allr0.append(parseData("R", file)) #might need fixing, can't use parseMRData here, should not append to mR
+                    print("\t\tallro=" + str(allr0)) #these need to be removed later, don't need a ton of strings being printed
+                if file.startswith("cal-r1"):
+                    allr1.append(parseData("R", file))
+                    print("\t\tallr1=" + str(allr1))
+                if file.startswith("sample-"): #this used to say .endswith(".egg"), changed to simplify
+                    allCountsR.append(parseData("R", file))
+                    print("\t\tallCountsR = " + str(allCountsR))
             if cd == "T":
-                if file.endswith(".egg"):
-                    allMT.append(parseMTData(file))
-                    log("\t\tallMT = " + str(allMT), 1)
+                if file.startswith("cal-t0"):
+                    allt0.append(parseData("T", file))
+                    print("\t\tallto=" + str(allt0))
+                if file.startswith("cal-t1"):
+                    allt1.append(parseData("T", file))
+                    print("\t\tallt1=" + str(allt1))
+                if file.startswith("sample-"): #used to say .endswith(".egg"), changed to simplify
+                    allCountsT.append(parseData("T", file))
+                    print("\t\tallCountsT = " + str(allCountsT))
         else:
             directoryScanner(os.path.join(path, file))
 
 
 def createLineToWrite(i):
     delim = "\t"
-    return (format(lambdas[i], ".2f") + delim + format(aveMR[i], ".2f") + delim + format(aveMT[i], ".2f") + "\n")
+    return "TODO"
 
 
 def printDataToFile(fullPath):
@@ -90,53 +121,26 @@ def printDataToFile(fullPath):
         print("ERROR: not all data lists are the same size: lambdas = " + str(len(lambdas)) + " | aveMR = " + str(len(aveMR)) + " | aveMT = " + str(len(aveMT)))
 
 
-def averageAllMRCounts():
-    log("\taveraging R data values", 0)
-    global allMR, aveMR, roundTo
+def averageAllCounts(list1, list2, roundTo): 
+    print("\taveraging r0 data values")
     validData = True
-    listSize = len(allMR[0])
-    for i in range(1, len(allMR)):
-        if len(allMR[i]) != listSize:
+    listSize = len(list1[0])
+    for i in range(1, len(list1)):
+        if len(list1[i]) != listSize:
             validData = False
     if validData:
         for i in range(listSize):
             sum = 0
-            for j in range(len(allMR)):
-                sum += allMR[j][i]
-            ave = sum / len(allMR)
-            aveMR.append(round(ave, roundTo))
-        log("\t\taveMR = " + str(aveMR), 1)
+            for j in range(len(list1)):
+                sum += list1[j][i]
+            ave = sum / len(list1)
+            list2.append(round(ave, roundTo))
+        print("\t\tave = " + str(list1))
     else:
-        print("ERROR: invalid data: list sizes in allMR = [")
-        for i in range(0, len(allMR)):
-            print(str(len(allMR[i])))
-            if i != len(allMR):
-                print(", ")
-            else:
-                print("]")
-
-
-def averageAllMTCounts():
-    log("\taveraging T data values", 0)
-    global allMT, aveMT
-    validData = True
-    listSize = len(allMT[0])
-    for i in range(1, len(allMT)):
-        if len(allMT[i]) != listSize:
-            validData = False
-    if validData:
-        for i in range(listSize):
-            sum = 0
-            for j in range(len(allMT)):
-                sum += allMT[j][i]
-            ave = sum / len(allMT)
-            aveMT.append(round(ave, roundTo))
-        log("\t\taveMT = " + str(aveMT), 1)
-    else:
-        print("ERROR: invalid data: list sizes in allMT = [")
-        for i in range(0, len(allMT)):
-            print(str(len(allMT[i])))
-            if i != len(allMT):
+        print("ERROR: invalid data: list sizes in all = [")
+        for i in range(0, len(list1)):
+            print(str(len(list1[i])))
+            if i != len(list1):
                 print(", ")
             else:
                 print("]")
@@ -148,8 +152,10 @@ def main():
     directory = input("Enter Directory: ")
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
-    averageAllMRCounts()
-    averageAllMTCounts()
+    averageAllCounts(allr0, aver0, roundTo)
+    averageAllCounts(allt0, avet0, roundTo)
+    averageAllCounts(allr1, aver1, roundTo)
+    averageAllCounts(allt1, avet1, roundTo)
     inputFolderName = directory.split("\\")[-1]
     printDataToFile(str(filePath) + r'\Output\output_' + str(inputFolderName) + r".txt")
     print("Process Completed\n")
