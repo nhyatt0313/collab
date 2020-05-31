@@ -15,16 +15,9 @@ allCountsR = [] # a list of lists - each list gathered from 1 file
 allCountsT = [] # a list of lists - each list gathered from 1 file
 
 allr0 = []
-aver0 = []
-
 allr1 = []
-aver1 = []
-
 allt0 = []
-avet0 = []
-
 allt1 = []
-avet1 = []
 
 def log(message, level):
     global logEnabled, logLevel
@@ -121,41 +114,44 @@ def printDataToFile(fullPath):
         print("ERROR: not all data lists are the same size: lambdas = " + str(len(lambdas)) + " | aveMR = " + str(len(aveMR)) + " | aveMT = " + str(len(aveMT)))
 
 
-def averageAllCounts(list1, list2, roundTo): 
+def averageAllCounts(allList, roundTo): 
     print("\taveraging r0 data values")
+    aveList = []
     validData = True
-    listSize = len(list1[0])
+    listSize = len(allList[0])
     for i in range(1, len(list1)):
-        if len(list1[i]) != listSize:
+        if len(allList[i]) != listSize:
             validData = False
     if validData:
         for i in range(listSize):
             sum = 0
-            for j in range(len(list1)):
-                sum += list1[j][i]
-            ave = sum / len(list1)
-            list2.append(round(ave, roundTo))
-        print("\t\tave = " + str(list1))
+            for j in range(len(allList)):
+                sum += allList[j][i]
+            ave = sum / len(list)
+            aveList.append(round(ave, roundTo))
+        print("\t\tave = " + str(list))
+        return aveList
     else:
         print("ERROR: invalid data: list sizes in all = [")
-        for i in range(0, len(list1)):
-            print(str(len(list1[i])))
-            if i != len(list1):
+        for i in range(0, len(list)):
+            print(str(len(allList[i])))
+            if i != len(list):
                 print(", ")
             else:
                 print("]")
+        return None
 
 
 def main():
-    global directory, filePath
+    global directory, filePath, allr0, allt0, allr1, allt1, roundTo
     print("\n\n")
     directory = input("Enter Directory: ")
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
-    averageAllCounts(allr0, aver0, roundTo)
-    averageAllCounts(allt0, avet0, roundTo)
-    averageAllCounts(allr1, aver1, roundTo)
-    averageAllCounts(allt1, avet1, roundTo)
+    averageR0 = averageAllCounts(allr0, roundTo)
+    averageT0 = averageAllCounts(allt0, roundTo)
+    averageR1 = averageAllCounts(allr1, roundTo)
+    averageT1 = averageAllCounts(allt1, roundTo)
     inputFolderName = directory.split("\\")[-1]
     printDataToFile(str(filePath) + r'\Output\output_' + str(inputFolderName) + r".txt")
     print("Process Completed\n")
