@@ -1,0 +1,100 @@
+Scattering Measurements
+
+Objectives: Measure R and T of standard samples, measure R_diffuse off the sphere wall, measure R and T of a TiO2 solution of known thickness. 
+
+See Cruzer Flash Drive (E) for the pertinent files.
+
+Measuring R of Standard Samples
+
+Exposure set to 9300ms
+
+044 VK 7/11/09 S 10 633nm A=0.0014 S=2.434mm^-1
+Thickness: 4.58+/-0.01 mm
+Location: E:\Scattering Measurements\Samples\044\R
+
+044S VK 7/11/09 SA 5 633nm A=0.0973 S=1.18mm^-1
+Thickness: 1.71+/-0.01 mm
+Location: E:\Scattering Measurements\Samples\044S\R
+
+044Ti VK 7/11/09 S 10 633nm A=0.0014 S=2.434mm^-1
+Thickness: 4.42+/-0.04 mm
+Location: E:\Scattering Measurements\Samples\044Ti\R
+
+044IN VK 7/11/09 A 10 633nm A=0 S=1.95mm^-1
+Thickness: 4.60+/-0.00 mm
+Location: E:\Scattering Measurements\Samples\044IN\R
+
+L44 VK 52909 SA 510nm A=0.095 S=0.79mm^-1
+Thickness: 87.17+/-0.47 mm
+Location: E:\Scattering Measurements\Samples\L44\R
+
+
+Measuring T of Standard Samples
+
+Exposure set to 12,000ms
+
+044 VK 7/11/09 S 10 633nm A=0.0014 S=2.434mm^-1
+Thickness: 4.58+/-0.01 mm
+Location: E:\Scattering Measurements\Samples\044\T
+
+044S VK 7/11/09 SA 5 633nm A=0.0973 S=1.18mm^-1
+Thickness: 1.71+/-0.01 mm
+Location: E:\Scattering Measurements\Samples\044S\T
+
+044Ti VK 7/11/09 S 10 633nm A=0.0014 S=2.434mm^-1
+Thickness: 4.42+/-0.04 mm
+Location: E:\Scattering Measurements\Samples\044Ti\T
+
+044IN VK 7/11/09 A 10 633nm A=0 S=1.95mm^-1
+Thickness: 4.60+/-0.00 mm
+Location: E:\Scattering Measurements\Samples\044IN\T
+
+L44 VK 52909 SA 510nm A=0.095 S=0.79mm^-1
+Thickness: 87.17+/-0.47 mm
+Location: No measurements taken
+
+
+Measuring R Diffuse off the Sphere Wall
+
+Exposure set to 4,000ms
+
+Location: E:\Scattering Measurements\R Diffuse
+
+
+Measuring R of TiO2 Samples: 27.86g TiO2 + 383.14mL E+OH DS 11/20/18 
+
+Exposure set to 10000 ms
+
+Thickness= 0.94+/-0.05mm, a 5.4% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\1mm\R
+
+Thickness= 1.87+/-0.02mm, a 0.96% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\2mm\R
+
+Thickness= 2.92+/-0.02mm, a 0.61% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\3mm\R
+
+
+Measuring T of TiO2 Samples: 27.86g TiO2 + 383.14mL E+OH DS 11/20/18 
+
+Exposure set to 11000 ms
+
+Thickness= 0.94+/-0.05mm, a 5.4% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\1mm\T
+
+Thickness= 1.87+/-0.02mm, a 0.96% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\2mm\T
+
+Thickness= 2.92+/-0.02mm, a 0.61% error margin
+Location: E:\Scattering Measurements\TiO2 Measurements\3mm\T
+
+Thicknesses of TiO2 Samples
+"TiO2 Solution Thickness.xlsx"
+E:\Scattering Measurements\TiO2 Measurements
+
+
+
+
+
+
+
