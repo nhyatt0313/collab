@@ -86,8 +86,6 @@ def createLineToWrite(i):
     return "" # this is where out new object will come in handy
 
 
-#blah
-
 #need to ensure r0, r1 are single average values
 #need to ensure r, is the array averageallCountsTCounts
 #need to ensure output is an array that is then written into the new file
