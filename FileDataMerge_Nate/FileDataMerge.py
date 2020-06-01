@@ -19,6 +19,12 @@ allr1 = []
 allt0 = []
 allt1 = []
 
+class IadReady:
+    def __init__(self, lambdas, mR, mT, outFileName):
+        self.lambdas = lambdas
+        self.mR = mR
+        self.mT = mT
+
 def log(message, level):
     global logEnabled, logLevel
     if log and level <= logLevel:
@@ -98,28 +104,28 @@ def directoryScanner(path):
             directoryScanner(os.path.join(path, file))
 
 
-def createLineToWrite(i):
+def createLineToWrite(iadReady, i):
     delim = "\t"
     return "TODO"
 
 
-def printDataToFile(fullPath):
-    global aveMR, aveMT, lambdas
+def printDataToFile(iadReady, fullPathPrefix):
+    fullPath = f"{fullPathPrefix}_{iadReady.comboId}.txt"
     file = open(fullPath, 'w')
-    if len(lambdas) == len(aveMR) == len(aveMT):
-        for iter in range(len(lambdas)):
-            file.write(createLineToWrite(iter))
+    if len(iadReady.lambdas) == len(iadReady.mR) == len(iadReady.mT):
+        for i in range(len(iadReady.lambdas)):
+            file.write(createLineToWrite(iadReady, i))
         print("Output File Created: " + fullPath)
     else:
-        print("ERROR: not all data lists are the same size: lambdas = " + str(len(lambdas)) + " | aveMR = " + str(len(aveMR)) + " | aveMT = " + str(len(aveMT)))
+        print(f"ERROR: not all data lists are the same size: iadReady.lambdas = {len(iadReady.lambdas)} | iadReady.mR = {len(iadReady.mR)} | iadReady.mT = {len(iadReady.mT)}")
 
 
 def averageAllCounts(allList, roundTo): 
-    print("\taveraging r0 data values")
+    print("\taveraging data values")
     aveList = []
     validData = True
     listSize = len(allList[0])
-    for i in range(1, len(list1)):
+    for i in range(1, len(allList)):
         if len(allList[i]) != listSize:
             validData = False
     if validData:
@@ -141,19 +147,60 @@ def averageAllCounts(allList, roundTo):
                 print("]")
         return None
 
+def createIadReadyListForOutFiles():
+    global lambdas, allr0, allt0, allr1, allt1, roundTo
+    iadReadyList = []
+    allMTCombosPerLambda = set() # this is a set of tuples of lists ( ([mR col from file_1],[mT col from file_1]), ... ([mR col from file_n],[mT col from file_n]) ) all combos
+    # this double for loop is not the most efficient, but works for now
+    for r in allCountsR:
+        for t in allCountsT:
+            # can't add duplicates to set
+            # note that r ant t are colums from a file
+            allMTCombosPerLambda.add((r, t))
+    for i, lambdaList in enumerate(lambdas):
+        # averaging a row across all files
+        averageR0 = averageAllCounts(allr0[i], roundTo)
+        averageT0 = averageAllCounts(allt0[i], roundTo)
+        averageR1 = averageAllCounts(allr1[i], roundTo)
+        averageT1 = averageAllCounts(allt1[i], roundTo)
+        
+
+
+
+
+        mR = 1 # TODO use above values to calculate with calculateMR function
+        mT = 1
+        
+        iadReadyList.append(IadReady(lambdaList, mR, mT, ""))
+
+    return iadReadyList
+    
+
+def writeAllCombinationsToFiles(fullPathPrefix):
+    # TODO
+    global lambdas
+    mR = []
+    mT = []
+    comboId = 34
+    iadReady = IadReady(lambdas, mR, mT, comboId)
+    printDataToFile(iadReady, fullPathPrefix)
+    return None
 
 def main():
-    global directory, filePath, allr0, allt0, allr1, allt1, roundTo
+    global directory, filePath
     print("\n\n")
     directory = input("Enter Directory: ")
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
-    averageR0 = averageAllCounts(allr0, roundTo)
-    averageT0 = averageAllCounts(allt0, roundTo)
-    averageR1 = averageAllCounts(allr1, roundTo)
-    averageT1 = averageAllCounts(allt1, roundTo)
+
     inputFolderName = directory.split("\\")[-1]
-    printDataToFile(str(filePath) + r'\Output\output_' + str(inputFolderName) + r".txt")
+
+    iadReadyList = createIadReadyListForOutFiles()
+
+    nestedDir = r"\Output"
+    outFileNamePrefix = f"\\output_{inputFolderName}"
+    writeAllCombinationsToFiles(f"{filePath}{nestedDir}{outFileNamePrefix}")
+
     print("Process Completed\n")
 
 main()
