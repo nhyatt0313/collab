@@ -20,10 +20,11 @@ allt0 = []
 allt1 = []
 
 class IadReady:
-    def __init__(self, lambdas, mR, mT, outFileName):
+    def __init__(self, lambdas, mR, mT, fileName):
         self.lambdas = lambdas
         self.mR = mR
         self.mT = mT
+        self.fileName = fileName
 
 def log(message, level):
     global logEnabled, logLevel
@@ -42,7 +43,8 @@ def getCounts(line):
 
 def parseData(dataFolder, dataFile):
     print(f"\tparsing {dataFolder} data file: " + dataFile)
-    file = open(directory + "\\" + dataFolder + "\\" + dataFile, 'r')
+    filePath = f"{directory}\\{dataFolder}\\{dataFile}".replace("\\", "/")
+    file = open(filePath, 'r')
     line = file.readline()
     data = []
     while line:
@@ -83,34 +85,27 @@ def directoryScanner(path):
             if cd == "R":
                 if file.startswith("cal-r0"):
                     allr0.append(parseData("R", file)) #might need fixing, can't use parseMRData here, should not append to mR
-                    print("\t\tallro=" + str(allr0)) #these need to be removed later, don't need a ton of strings being printed
                 if file.startswith("cal-r1"):
                     allr1.append(parseData("R", file))
-                    print("\t\tallr1=" + str(allr1))
                 if file.startswith("sample-"): #this used to say .endswith(".egg"), changed to simplify
                     allCountsR.append(parseData("R", file))
-                    print("\t\tallCountsR = " + str(allCountsR))
             if cd == "T":
                 if file.startswith("cal-t0"):
                     allt0.append(parseData("T", file))
-                    print("\t\tallto=" + str(allt0))
                 if file.startswith("cal-t1"):
                     allt1.append(parseData("T", file))
-                    print("\t\tallt1=" + str(allt1))
                 if file.startswith("sample-"): #used to say .endswith(".egg"), changed to simplify
                     allCountsT.append(parseData("T", file))
-                    print("\t\tallCountsT = " + str(allCountsT))
         else:
             directoryScanner(os.path.join(path, file))
 
 
 def createLineToWrite(iadReady, i):
-    delim = "\t"
-    return "TODO"
+    return f"{iadReady.lambdas[i]}\t{iadReady.mR[i]}\t{iadReady.mT[i]}\n"
 
 
-def printDataToFile(iadReady, fullPathPrefix):
-    fullPath = f"{fullPathPrefix}_{iadReady.comboId}.txt"
+def printDataToFile(iadReady, fullPath):
+    fullPath = f"{fullPath}/{iadReady.fileName}.txt"
     file = open(fullPath, 'w')
     if len(iadReady.lambdas) == len(iadReady.mR) == len(iadReady.mT):
         for i in range(len(iadReady.lambdas)):
@@ -133,15 +128,14 @@ def averageAllCounts(allList, roundTo):
             sum = 0
             for j in range(len(allList)):
                 sum += allList[j][i]
-            ave = sum / len(list)
+            ave = sum / len(allList)
             aveList.append(round(ave, roundTo))
-        print("\t\tave = " + str(list))
         return aveList
     else:
         print("ERROR: invalid data: list sizes in all = [")
-        for i in range(0, len(list)):
+        for i in range(0, len(allList)):
             print(str(len(allList[i])))
-            if i != len(list):
+            if i != len(allList):
                 print(", ")
             else:
                 print("]")
@@ -150,41 +144,37 @@ def averageAllCounts(allList, roundTo):
 def createIadReadyListForOutFiles():
     global lambdas, allr0, allt0, allr1, allt1, roundTo
     iadReadyList = []
-    allMTCombosPerLambda = set() # this is a set of tuples of lists ( ([mR col from file_1],[mT col from file_1]), ... ([mR col from file_n],[mT col from file_n]) ) all combos
-    # this double for loop is not the most efficient, but works for now
-    for r in allCountsR:
-        for t in allCountsT:
-            # can't add duplicates to set
-            # note that r ant t are colums from a file
-            allMTCombosPerLambda.add((r, t))
-    for i, lambdaList in enumerate(lambdas):
-        # averaging a row across all files
-        averageR0 = averageAllCounts(allr0[i], roundTo)
-        averageT0 = averageAllCounts(allt0[i], roundTo)
-        averageR1 = averageAllCounts(allr1[i], roundTo)
-        averageT1 = averageAllCounts(allt1[i], roundTo)
+    averageR0 = averageAllCounts(allr0, roundTo)
+    averageT0 = averageAllCounts(allt0, roundTo)
+    averageR1 = averageAllCounts(allr1, roundTo)
+    averageT1 = averageAllCounts(allt1, roundTo)
         
+    allMRs = []
+    # perform calculation for MR values
+    for countsR in allCountsR:
+        allMRs.append(calcMR(countsR, averageR0, averageR1))
 
+    allMTs = []
+    # perform calculation for MT values
+    for countsT in allCountsT:
+        allMTs.append(calcMT(countsT, averageT0, averageT1))
 
+    # create all combinations
+    allCombosPerLambda = [] #( ([mR col from file_1],[mT col from file_1]), ... ([mR col from file_n],[mT col from file_n]) )
+    for r in allMRs:
+        for t in allMTs:
+            allCombosPerLambda.append((r, t))
 
-
-        mR = 1 # TODO use above values to calculate with calculateMR function
-        mT = 1
+    for i, combo in enumerate(allCombosPerLambda):
+        iadReadyList.append(IadReady(lambdas, combo[0], combo[1], f"combo_{i}"))
         
-        iadReadyList.append(IadReady(lambdaList, mR, mT, ""))
-
     return iadReadyList
     
 
-def writeAllCombinationsToFiles(fullPathPrefix):
-    # TODO
+def writeAllCombinationsToFiles(iadReadyList, fullPath):
     global lambdas
-    mR = []
-    mT = []
-    comboId = 34
-    iadReady = IadReady(lambdas, mR, mT, comboId)
-    printDataToFile(iadReady, fullPathPrefix)
-    return None
+    for iadReady in iadReadyList:
+        printDataToFile(iadReady, fullPath)
 
 def main():
     global directory, filePath
@@ -193,13 +183,12 @@ def main():
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
 
-    inputFolderName = directory.split("\\")[-1]
-
+    #inputFolderName = directory.split("\\")[-1]
     iadReadyList = createIadReadyListForOutFiles()
 
     nestedDir = r"\Output"
-    outFileNamePrefix = f"\\output_{inputFolderName}"
-    writeAllCombinationsToFiles(f"{filePath}{nestedDir}{outFileNamePrefix}")
+    #outFileNamePrefix = f"\\output_{inputFolderName}"
+    writeAllCombinationsToFiles(iadReadyList, f"{filePath}{nestedDir}")
 
     print("Process Completed\n")
 
