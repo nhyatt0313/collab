@@ -18,6 +18,16 @@ allr1 = []
 allt0 = []
 allt1 = []
 
+header = ""
+with open("header.txt", 'r') as file:
+    header = file.read()
+
+M_U =0.0000
+r_w =0.9788
+t_w = 0.9788
+rstd = 0.9800
+tstd = 1.0000
+
 class IadReady:
     def __init__(self, lambdas, mR, mT, fileName):
         self.lambdas = lambdas
@@ -100,13 +110,15 @@ def directoryScanner(path):
 
 
 def createLineToWrite(iadReady, i):
-    return f"{iadReady.lambdas[i]}\t{iadReady.mR[i]}\t{iadReady.mT[i]}\n"
+    return f"{iadReady.lambdas[i]}\t{iadReady.mR[i]}\t{iadReady.mT[i]}\t{M_U}\t{r_w}\t{t_w}\t{rstd}\t{tstd}\n"
 
 
 def printDataToFile(iadReady, fullPath):
+    global header
     fullPath = f"{fullPath}/{iadReady.fileName}.txt"
     file = open(fullPath, 'w')
     if len(iadReady.lambdas) == len(iadReady.mR) == len(iadReady.mT):
+        file.write(header)
         for i in range(len(iadReady.lambdas)):
             file.write(createLineToWrite(iadReady, i))
         print("Output File Created: " + fullPath)
