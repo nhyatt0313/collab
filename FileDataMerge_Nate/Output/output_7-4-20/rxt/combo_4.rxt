@@ -23,7 +23,7 @@ IAD1 # Must be first four characters
 1.00 # [mm] Detector Port Diameter 
 0.96 # Reflectance of the sphere wall
 
-2 # Number of measurements, M_R, M_T
+7 # Number of measurements, M_R, M_T, M_U, r_w, t_w, rstd, tstd
 
 #nm	#M_R	#M_T	#M_U	#r_w 	#t_w 	#rstd 	#tstd
 349.8	0.22448979591836735	0.07613168724279835	0.0	0.9788	0.9788	0.98	1.0

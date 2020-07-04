@@ -115,7 +115,7 @@ def createLineToWrite(iadReady, i):
 
 def printDataToFile(iadReady, fullPath):
     global header
-    fullPath = f"{fullPath}/{iadReady.fileName}.txt"
+    fullPath = f"{fullPath}/{iadReady.fileName}.rxt"
     file = open(fullPath, 'w')
     if len(iadReady.lambdas) == len(iadReady.mR) == len(iadReady.mT):
         file.write(header)
