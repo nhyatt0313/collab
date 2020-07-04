@@ -8,7 +8,6 @@ logLevel = 0
 
 directory = None
 lambdasParsed = False
-roundTo = 2
 
 lambdas = []
 allCountsR = [] # a list of lists - each list gathered from 1 file
@@ -84,17 +83,17 @@ def directoryScanner(path):
         if not os.path.isdir(os.path.join(path, file)):
             if cd == "R":
                 if file.startswith("cal-r0"):
-                    allr0.append(parseData("R", file)) #might need fixing, can't use parseMRData here, should not append to mR
+                    allr0.append(parseData("R", file))
                 if file.startswith("cal-r1"):
                     allr1.append(parseData("R", file))
-                if file.startswith("sample-"): #this used to say .endswith(".egg"), changed to simplify
+                if file.startswith("sample-"):
                     allCountsR.append(parseData("R", file))
             if cd == "T":
                 if file.startswith("cal-t0"):
                     allt0.append(parseData("T", file))
                 if file.startswith("cal-t1"):
                     allt1.append(parseData("T", file))
-                if file.startswith("sample-"): #used to say .endswith(".egg"), changed to simplify
+                if file.startswith("sample-"):
                     allCountsT.append(parseData("T", file))
         else:
             directoryScanner(os.path.join(path, file))
@@ -115,7 +114,7 @@ def printDataToFile(iadReady, fullPath):
         print(f"ERROR: not all data lists are the same size: iadReady.lambdas = {len(iadReady.lambdas)} | iadReady.mR = {len(iadReady.mR)} | iadReady.mT = {len(iadReady.mT)}")
 
 
-def averageAllCounts(allList, roundTo): 
+def averageAllCounts(allList): 
     print("\taveraging data values")
     aveList = []
     validData = True
@@ -129,7 +128,7 @@ def averageAllCounts(allList, roundTo):
             for j in range(len(allList)):
                 sum += allList[j][i]
             ave = sum / len(allList)
-            aveList.append(round(ave, roundTo))
+            aveList.append(ave)
         return aveList
     else:
         print("ERROR: invalid data: list sizes in all = [")
@@ -142,12 +141,12 @@ def averageAllCounts(allList, roundTo):
         return None
 
 def createIadReadyListForOutFiles():
-    global lambdas, allr0, allt0, allr1, allt1, roundTo
+    global lambdas, allr0, allt0, allr1, allt1
     iadReadyList = []
-    averageR0 = averageAllCounts(allr0, roundTo)
-    averageT0 = averageAllCounts(allt0, roundTo)
-    averageR1 = averageAllCounts(allr1, roundTo)
-    averageT1 = averageAllCounts(allt1, roundTo)
+    averageR0 = averageAllCounts(allr0)
+    averageT0 = averageAllCounts(allt0)
+    averageR1 = averageAllCounts(allr1)
+    averageT1 = averageAllCounts(allt1)
         
     allMRs = []
     # perform calculation for MR values
@@ -182,12 +181,8 @@ def main():
     directory = input("Enter Directory: ")
     log("Scanning directory " + directory, 0)
     directoryScanner(directory)
-
-    #inputFolderName = directory.split("\\")[-1]
     iadReadyList = createIadReadyListForOutFiles()
-
     nestedDir = r"\Output"
-    #outFileNamePrefix = f"\\output_{inputFolderName}"
     writeAllCombinationsToFiles(iadReadyList, f"{filePath}{nestedDir}")
 
     print("Process Completed\n")
